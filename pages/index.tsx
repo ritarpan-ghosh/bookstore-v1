@@ -1,86 +1,199 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import SwiperCore, { Autoplay } from "swiper";
+import connectDb from "../middleware/mongoose";
+import Product from "../models/product";
+import Link from "next/link";
+import Image from "next/image";
 
-const Home: NextPage = () => {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
-
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
-          </code>
-        </p>
-
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and its API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className="flex h-24 w-full items-center justify-center border-t">
-        <a
-          className="flex items-center justify-center gap-2"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-        </a>
-      </footer>
-    </div>
-  )
+interface homeProps {
+  products: any;
+  addToCart: any;
 }
 
-export default Home
+const Home = ({products, addToCart}:homeProps) => {
+  SwiperCore.use([Autoplay]);
+  // console.log(products)
+  return (
+    <>
+      <div>
+        <Swiper
+          slidesPerView={1}
+          autoplay={{
+            delay: 5000,
+          }}
+          loop={true}
+        >
+          <SwiperSlide>
+            <img
+              src="/assets/img/home/slider/1.jpg"
+              alt="1"
+              className="mx-auto w-full max-w-5xl
+            "
+            />
+          </SwiperSlide>
+          <SwiperSlide>
+            <img
+              src="/assets/img/home/slider/2.jpg"
+              alt="2"
+              className="mx-auto w-full max-w-5xl
+            "
+            />
+          </SwiperSlide>
+        </Swiper>
+      </div>
+      <div className="pt-4 container mx-auto">
+        <h1 className="text-center text-4xl font-semibold pb-4">
+          Our latest Stationery
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 px-2">
+          {products.length == 0 && "There is no product."}
+          {products.map((item: any) => {
+            return (
+              <div key={item._id} className="border rounded w-2/3 md:w-full mx-auto">
+                <Link href={`/product/${item._id}`}>
+                  <div className="h-60 md:h-64">
+                    <Image
+                      src={item.img}
+                      alt=""
+                      height={230}
+                      width={230}
+                      className="mx-auto"
+                    />
+                  </div>
+                </Link>
+                <div className="bg-gray-50 pt-2 pb-8 px-2">
+                  <Link href={`/product/${item._id}`}>
+                    <h1 className="text-xl mb-2 text-ellipsis lg:text-2xl overflow-hidden whitespace-nowrap">
+                      {item.name}
+                    </h1>
+                  </Link>
+                  <Link href={`/product/${item._id}`}>
+                    <p className="text-lg">₹{item.price}</p>
+                  </Link>
+                  <button
+                    className="button mt-4"
+                    onClick={() => {
+                      addToCart(item._id, item.name, item.price, 1, item.img);
+                    }}
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="container mx-auto pt-4">
+        <h1 className="text-center text-4xl font-semibold pb-4">
+          We Provide -
+        </h1>
+        <div className="grid grid-cols-3 gap-12 px-2">
+          <div className="border rounded bg-gray-50 p-2 h-20 text-lg flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 279.525 279.525"
+              className="w-10"
+            >
+              <path
+                d="M165.066,1.544c-29.272,0-56.007,11.05-76.268,29.191c4.494,7.146,7.047,15.46,7.287,24.042l0.001,0.025l0.001,0.025
+		c0.102,3.867,0.333,7.735,0.664,11.597c15.368-21.117,40.258-34.88,68.315-34.88c46.571,0,84.459,37.888,84.459,84.459
+		c0,46.08-37.098,83.634-82.994,84.422c4.191,3.502,8.518,6.84,12.976,9.974l0.02,0.015l0.021,0.014
+		c6.07,4.282,11.014,9.896,14.483,16.317c49.133-12.861,85.493-57.633,85.493-110.742C279.525,52.89,228.18,1.544,165.066,1.544z"
+                fill="#cf1521"
+              />
+              <path
+                d="M162.256,234.942c-13.076-10.438-21.234-17.389-32.909-28.204c-3.435-3.182-7.633-5.164-11.944-5.164
+		c-3.299,0-6.557,1.051-9.239,3.252c-2.768,2.33-5.536,4.66-8.305,6.989c-22.499-26.738-39.206-57.895-49.027-91.431
+		c3.472-1.016,6.945-2.033,10.417-3.049c7.652-2.343,11.252-10.512,10.129-18.701c-2.443-17.824-3.77-26.679-5.282-43.018
+		c-0.775-8.375-6.349-15.65-14.338-16.085c-1.246-0.121-2.491-0.181-3.726-0.181c-29.71,0-55.578,34.436-46.009,76.564
+		c11.907,52.172,37.684,100.243,74.551,139.031c15.102,15.856,33.603,23.036,50.312,23.036c17.627,0,33.261-7.984,40.833-22.195
+		C171.778,248.891,168.83,240.19,162.256,234.942z"
+                fill="#cf1521"
+              />
+              <path
+                d="M130.645,118.121c-7.912,7.341-13.089,13.113-15.823,17.643c-1.93,3.195-3.338,6.573-4.187,10.04
+		c-0.399,1.632-0.032,3.326,1.007,4.649c1.038,1.321,2.596,2.079,4.276,2.079h37.758c4.626,0,8.39-3.764,8.39-8.39
+		c0-4.626-3.764-8.39-8.39-8.39h-17.051c0.139-0.164,0.282-0.328,0.428-0.493c1.114-1.254,3.842-3.874,8.107-7.785
+		c4.473-4.105,7.493-7.179,9.232-9.398c2.621-3.336,4.571-6.593,5.794-9.679c1.247-3.145,1.88-6.498,1.88-9.967
+		c0-6.224-2.254-11.507-6.699-15.705c-4.416-4.164-10.495-6.274-18.071-6.274c-6.884,0-12.731,1.802-17.377,5.356
+		c-2.803,2.146-4.961,5.119-6.415,8.839c-0.982,2.513-0.728,5.388,0.68,7.689c1.408,2.302,3.852,3.837,6.537,4.105
+		c0.299,0.03,0.597,0.045,0.891,0.045c3.779,0,7.149-2.403,8.387-5.979c0.388-1.121,0.901-2.012,1.527-2.65
+		c1.318-1.343,3.093-1.997,5.428-1.997c2.373,0,4.146,0.618,5.418,1.889c1.269,1.269,1.886,3.12,1.886,5.66
+		c0,2.359-0.843,4.819-2.505,7.314C140.862,108.028,138.199,111.083,130.645,118.121z"
+                fill="#cf1521"
+              />
+              <path
+                d="M206.235,76.451h-6.307c-1.797,0-3.475,0.886-4.489,2.37l-29.168,42.698c-0.851,1.246-1.301,2.703-1.301,4.212v6.919
+		c0,2.997,2.439,5.436,5.436,5.436h23.945v5.787c0,4.775,3.885,8.66,8.66,8.66c4.775,0,8.66-3.885,8.66-8.66v-5.787h0.865
+		c4.437,0,8.047-3.61,8.047-8.047c0-4.437-3.61-8.047-8.047-8.047h-0.865V81.887C211.671,78.89,209.232,76.451,206.235,76.451z
+		 M194.352,121.992h-10.748l10.748-15.978V121.992z"
+                fill="#cf1521"
+              />
+            </svg>
+            <p>24/7 Service</p>
+          </div>
+          <div className="border rounded bg-gray-50 p-2 h-20 text-lg flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 612 612"
+              className="w-10"
+            >
+              <path
+                d="M612,338.19v55.625c0,13.877-11.249,25.125-25.126,25.125h-26.885c-4.857-33.332-33.585-58.961-68.259-58.961    c-34.59,0-63.317,25.629-68.175,58.961H195.162c-4.857-33.332-33.585-58.961-68.175-58.961s-63.318,25.629-68.175,58.961H25.143    c-13.876,0-25.125-11.248-25.125-25.125V338.19H612z M173.067,203.958h-14.313l-5.259,27.155h13.945    c9.292,0,16.996-6.363,16.996-17.004C184.436,207.631,180.159,203.958,173.067,203.958z M543.892,428.907    c0,28.729-23.367,52.094-52.095,52.094c-28.811,0-52.178-23.367-52.178-52.094c0-28.811,23.367-52.178,52.178-52.178    C520.524,376.729,543.892,400.097,543.892,428.907z M517.845,428.907c0-14.404-11.726-26.047-26.047-26.047    c-14.405,0-26.048,11.643-26.048,26.047c0,14.322,11.643,26.049,26.048,26.049C506.119,454.956,517.845,443.229,517.845,428.907z     M179.063,428.907c0,28.729-23.283,52.094-52.094,52.094s-52.094-23.367-52.094-52.094c0-28.811,23.284-52.178,52.094-52.178    S179.063,400.097,179.063,428.907z M153.017,428.907c0-14.404-11.642-26.047-26.046-26.047c-14.406,0-26.047,11.643-26.047,26.047    c0,14.322,11.642,26.049,26.047,26.049C141.375,454.956,153.017,443.229,153.017,428.907z M611.982,324.302H0V156.125    c0-13.903,11.307-25.125,25.125-25.125h379.736c13.903,0,25.126,11.223,25.126,25.125v18.678h49.833    c8.794,0,17.253,3.518,23.534,9.715l98.745,97.656c6.281,6.282,9.883,14.824,9.883,23.786V324.302z M89.184,228.545l4.646-24.586    h34.245l2.568-13.577H80.866l-16.881,86.837H79.64l6.854-35.104h28.863l2.568-13.569H89.184z M180.772,240.649v-0.246    c13.086-4.278,19.81-17.118,19.81-28.986c0-8.923-4.4-15.655-11.745-18.837c-3.541-1.586-7.828-2.2-12.473-2.2h-30.696    l-16.874,86.836h15.769l6.241-32.413h15.655l11.009,32.413h16.874l-11.614-32.168    C181.623,241.876,180.772,240.649,180.772,240.649z M277.113,190.381h-51.854l-16.996,86.837h53.932l2.568-13.577h-38.155    l4.523-23.359h29.231l2.691-13.577h-29.231l4.4-22.746h36.201L277.113,190.381z M347.174,190.381h-51.855l-16.996,86.837h53.933    l2.567-13.577h-38.155l4.523-23.359h29.231l2.691-13.577h-29.232l4.401-22.746h36.2L347.174,190.381z M561.731,278.655    l-77.305-73.787c-0.754-0.669-1.759-1.088-2.764-1.088h-18.174c-2.178,0-3.937,1.759-3.937,3.937v73.787    c0,2.178,1.759,3.936,3.937,3.936h95.562C562.568,285.439,564.327,281.084,561.731,278.655z"
+                fill="#cf1521"
+              />
+            </svg>
+            <p>Free Delivery</p>
+          </div>
+          <div className="border rounded bg-gray-50 p-2 h-20 text-lg flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 492.153 492.153"
+              className="w-10"
+            >
+              <path
+                d="M426.638,87.91c-42.247-42.247-98.418-65.514-158.166-65.514c-5.799,0-10.5,4.701-10.5,10.5v56.531
+		c0,5.799,4.701,10.5,10.5,10.5c80.587,0,146.148,65.561,146.148,146.147c0,80.587-65.561,146.148-146.148,146.148
+		c-73.915,0-135.549-54.985-144.913-127.088h36.91c0.008,0,0.013,0.001,0.02,0c5.799,0,10.5-4.701,10.5-10.5
+		c0-2.887-1.165-5.502-3.051-7.4l-75.345-84.401c-1.993-2.232-4.842-3.508-7.833-3.508c-0.017,0-0.034,0-0.05,0
+		c-3.009,0.015-5.867,1.319-7.85,3.583L2.6,247.719c-2.714,3.101-3.365,7.502-1.663,11.254c1.702,3.753,5.442,6.163,9.563,6.163
+		h35.11c4.553,54.02,28.36,104.134,67.69,142.033c41.883,40.359,96.99,62.587,155.171,62.587
+		c59.748,0,115.919-23.267,158.166-65.515c42.248-42.248,65.515-98.419,65.515-158.166
+		C492.153,186.328,468.886,130.157,426.638,87.91z M268.472,448.756c-109.242,0-198.191-85.45-202.501-194.535
+		c-0.223-5.633-4.854-10.085-10.492-10.085H33.65l51.186-58.457l52.185,58.457H112.06c-2.883,0-5.639,1.186-7.621,3.278
+		c-1.983,2.092-3.018,4.908-2.863,7.786c4.774,88.611,78.084,158.023,166.897,158.023c92.166,0,167.148-74.982,167.148-167.148
+		c0-88.639-69.355-161.384-156.648-166.821V43.665c106.9,5.479,192.181,94.173,192.181,202.41
+		C471.153,357.834,380.231,448.756,268.472,448.756z"
+                fill="#cf1521"
+              />
+              <path
+                d="M255.41,255.643v79.405h-25.332c-5.799,0-10.5,4.701-10.5,10.5s4.701,10.5,10.5,10.5h25.332v13.028
+		c0,5.799,4.701,10.5,10.5,10.5c5.799,0,10.5-4.701,10.5-10.5v-13.964c28.222-4.984,49.733-29.669,49.733-59.3
+		c0-29.63-21.512-54.314-49.733-59.299v-79.407l22.119-0.001c5.799,0,10.5-4.701,10.5-10.5c0-5.799-4.701-10.5-10.5-10.5
+		l-22.119,0.001v-13.03c0-5.799-4.701-10.5-10.5-10.5c-5.799,0-10.5,4.701-10.5,10.5v13.965c-28.224,4.985-49.736,29.67-49.736,59.3
+		C205.674,225.973,227.186,250.658,255.41,255.643z M305.143,295.813c0,17.998-12.184,33.193-28.733,37.797v-75.593
+		C292.959,262.62,305.143,277.816,305.143,295.813z M255.41,158.545v75.595c-16.551-4.604-28.736-19.8-28.736-37.799
+		C226.674,178.344,238.859,163.149,255.41,158.545z"
+                fill="#cf1521"
+              />
+            </svg>
+            <p>Full Refundable</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Home;
+
+export async function getServerSideProps(context: any) {
+  await connectDb();
+  let products = await Product.find().sort({'_id': -1}).limit(3);
+  return {
+    props: { products: JSON.parse(JSON.stringify(products)) }, // will be passed to the page component as props
+  };
+}

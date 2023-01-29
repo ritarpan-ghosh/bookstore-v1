@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body{
+    @apply overflow-x-hidden;
+}
+.button{
+    @apply px-2 py-1 bg-[#cf1521] text-white hover:bg-[#f74d40] rounded;
+}
